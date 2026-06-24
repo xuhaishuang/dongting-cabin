@@ -1250,14 +1250,14 @@ function drawDongtingChar(ctx,cx,cy,s){
   ctx.restore();
 }
 
-// 房间中的董婷
+// 房间中的董婷（面朝观众，放大的尺寸）
 function drawRoomDongting(){
-  let dx=480,dy=FL+2; // 脚底位置
-  drawDongtingChar(ctx,dx,dy,.55);
+  let dx=500,dy=FL+2;
+  drawDongtingChar(ctx,dx,dy,.88);
   // 名字标签
   let nAlpha=Math.sin(T*.04)*.2+.7;
-  ctx.fillStyle=`rgba(255,180,200,${nAlpha})`;ctx.font='9px "KaiTi","楷体",serif';ctx.textAlign='center';
-  ctx.fillText('💕 董婷',dx,dy-128);
+  ctx.fillStyle=`rgba(255,180,200,${nAlpha})`;ctx.font='bold 11px "KaiTi","楷体",serif';ctx.textAlign='center';
+  ctx.fillText('💕 董婷',dx,dy-145);
   ctx.textAlign='start';
 }
 
