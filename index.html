@@ -1141,6 +1141,15 @@ function drawDongtingChar(ctx,cx,cy,s){
   // === 脖子 ===
   ctx.fillStyle='#fef2e8';ctx.fillRect(-4,-74,8,7);
 
+  // === 后发（必须在脸之前画！） ===
+  ctx.fillStyle='#3a1a28';
+  ctx.beginPath();ctx.arc(0,-96,22.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#4a2535';ctx.beginPath();ctx.arc(3,-98,10,0,Math.PI*2);ctx.fill();
+  // 后发下垂
+  ctx.fillStyle='#3a1a28';
+  ctx.beginPath();ctx.moveTo(-19,-82);ctx.quadraticCurveTo(-22,-77,-15,-73);ctx.lineTo(-10,-80);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(19,-82);ctx.quadraticCurveTo(22,-77,15,-73);ctx.lineTo(10,-80);ctx.closePath();ctx.fill();
+
   // === 头部 ===
   ctx.fillStyle='#fef7f2';
   ctx.beginPath();ctx.arc(0,-98,22,0,Math.PI*2);ctx.fill();
@@ -1186,13 +1195,7 @@ function drawDongtingChar(ctx,cx,cy,s){
   ctx.beginPath();ctx.arc(0,-88.5,5.5,.15,Math.PI*.85);ctx.stroke();
   ctx.fillStyle='#f8a0a0';ctx.beginPath();ctx.arc(0,-86.5,2.5,Math.PI*.15,Math.PI*.85);ctx.fill();
 
-  // === 头发 ===
-  // 后发
-  ctx.fillStyle='#3a1a28';
-  ctx.beginPath();ctx.arc(0,-96,22.5,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#4a2535';ctx.beginPath();ctx.arc(3,-98,10,0,Math.PI*2);ctx.fill();
-
-  // 前发/刘海
+  // === 前发/刘海 ===
   ctx.fillStyle='#3a1a28';
   ctx.beginPath();ctx.moveTo(-19,-108);
   ctx.quadraticCurveTo(-15,-118,-2,-120);
