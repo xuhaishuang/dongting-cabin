@@ -15,11 +15,16 @@ body{background:#0b0b18;display:flex;justify-content:center;align-items:center;m
   position:absolute;z-index:10;pointer-events:none;
   left:calc(50% + 55px);top:342px;width:80px;height:130px;
 }
-.dt-head{position:absolute;top:0;left:50%;transform:translateX(-50%);width:52px;height:54px;}
+.dt-head{position:absolute;top:0;left:50%;transform:translateX(-50%);width:52px;height:58px;}
 .dt-face{
-  position:absolute;top:8px;left:2px;width:48px;height:44px;
+  position:absolute;top:6px;left:2px;width:48px;height:48px;
   background:radial-gradient(ellipse at 50% 40%,#fefaf6,#fef4ec);border-radius:50%;
   box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.dt-neck{
+  position:absolute;top:52px;left:50%;transform:translateX(-50%);width:12px;height:8px;
+  background:linear-gradient(180deg,#fef4ec,#fef0e8);border-radius:2px 2px 4px 4px;
+  box-shadow:inset 0 2px 2px rgba(0,0,0,.03);
 }
 .dt-eye{
   position:absolute;top:15px;width:14px;height:18px;background:#fff;border-radius:50%;
@@ -50,7 +55,7 @@ body{background:#0b0b18;display:flex;justify-content:center;align-items:center;m
   background:var(--hair,#3a1a28);border-radius:60% 60% 10% 30%;
   box-shadow:0 1px 3px rgba(0,0,0,.15);
 }
-.dt-body{position:absolute;top:52px;left:8px;width:36px;height:38px;}
+.dt-body{position:absolute;top:58px;left:8px;width:36px;height:38px;}
 .dt-top{
   width:36px;height:28px;
   background:var(--top,#fce4ec);border-radius:8px 8px 3px 3px;
@@ -63,12 +68,12 @@ body{background:#0b0b18;display:flex;justify-content:center;align-items:center;m
 }
 .dt-btm.dress{height:24px;border-radius:3px 3px 12px 12px;}
 .dt-btm.long{height:32px;border-radius:3px 3px 14px 14px;}
-.dt-legs{position:absolute;top:90px;left:14px;display:flex;gap:6px;}
+.dt-legs{position:absolute;top:95px;left:14px;display:flex;gap:6px;}
 .dt-leg{
-  width:8px;height:28px;background:linear-gradient(180deg,#fef8f4,#fef2ea);
+  width:8px;height:30px;background:linear-gradient(180deg,#fef8f4,#fef2ea);
   border-radius:4px;box-shadow:inset 0 0 3px rgba(0,0,0,.03);
 }
-.dt-shoes{position:absolute;top:118px;left:10px;display:flex;gap:6px;}
+.dt-shoes{position:absolute;top:125px;left:10px;display:flex;gap:6px;}
 .dt-shoe{
   width:12px;height:6px;background:var(--shoe,#ffb3ba);border-radius:3px 3px 5px 5px;
   box-shadow:0 1px 2px rgba(0,0,0,.1);
@@ -257,6 +262,7 @@ canvas{border-radius:10px;display:block;cursor:pointer;}
         <div class="dt-mouth"></div>
       </div>
       <div class="dt-bangs"></div>
+      <div class="dt-neck"></div>
     </div>
     <div class="dt-body">
       <div class="dt-top" id="dtTop"></div>
