@@ -869,6 +869,7 @@ function drawRoom(){
   drawRug();drawWallDecor();drawWallArt();
   drawWindow();drawLight();
   drawBed();drawBlackboard();drawHealingElements();
+  drawRoomDongting();
   drawWardrobe();drawNightstand();drawFlowerStand();drawVanity();
 }
 
@@ -1013,143 +1014,270 @@ const wardrobeItems = [
 ];
 let pickedOutfit = [];
 
-// ============ 绘制董婷换装小人 ============
-function drawDongting(){
-  let mc=document.getElementById('mirrorCanvas');if(!mc)return;
-  let mctx=mc.getContext('2d');let mW=180,mH=280;
-  mctx.clearRect(0,0,mW,mH);
+// ============ 绘制董婷小人（高质量动漫风） ============
+// 从pickedOutfit提取当前穿搭
+function getOutfit(){
+  let top=pickedOutfit.find(p=>p.topC)||{topC:'#fce4ec',topS:'lace'};
+  let btm=pickedOutfit.find(p=>p.btmC)||{btmC:'#ffd1dc',btmS:'pleatSkirt'};
+  let sh=pickedOutfit.find(p=>p.shC)||{shC:'#ffb3ba',shS:'maryjane'};
+  let crown=pickedOutfit.some(p=>p.crown),hat=pickedOutfit.some(p=>p.hat);
+  let bow=pickedOutfit.some(p=>p.bow),glass=pickedOutfit.some(p=>p.glass);
+  return{top,btm,sh,crown,hat,bow,glass};
+}
 
-  // 衣橱灯光背景
-  let bg=mctx.createRadialGradient(mW/2,mH/2,40,mW/2,mH/2,160);
-  bg.addColorStop(0,'#fef5f8');bg.addColorStop(1,'#f0d8e0');
-  mctx.fillStyle=bg;mctx.fillRect(0,0,mW,mH);
+// 通用角色绘制 (ctx, 脚底x, 脚底y, 缩放)
+function drawDongtingChar(ctx,cx,cy,s){
+  ctx.save();ctx.translate(cx,cy);ctx.scale(s,s);
 
-  // 地板
-  mctx.fillStyle='#e8d0c8';mctx.fillRect(0,mH-30,mW,30);
-  mctx.fillStyle='rgba(0,0,0,.06)';mctx.fillRect(0,mH-30,mW,3);
+  // === 阴影 ===
+  ctx.fillStyle='rgba(0,0,0,.08)';ctx.beginPath();ctx.ellipse(0,0,28,7,0,0,Math.PI*2);ctx.fill();
 
-  let cx=mW/2,cy=145; // 身体中心
+  let o=getOutfit();
+  let topC=o.top.topC,topS=o.top.topS;
+  let btmC=o.btm.btmC,btmS=o.btm.btmS;
+  let shC=o.sh.shC,shS=o.sh.shS;
 
-  // 获取当前搭配属性
-  let topItem=pickedOutfit.find(p=>p.topC);
-  let btmItem=pickedOutfit.find(p=>p.btmC);
-  let shItem=pickedOutfit.find(p=>p.shC);
-  let hasHat=pickedOutfit.some(p=>p.hat);
-  let hasGlass=pickedOutfit.some(p=>p.glass);
-  let hasCrown=pickedOutfit.some(p=>p.crown);
-  let hasBow=pickedOutfit.some(p=>p.bow);
+  // === 腿 ===
+  ctx.fillStyle='#fef2e8';
+  ctx.beginPath();ctx.roundRect(-8,-48,7,26,3);ctx.fill();
+  ctx.beginPath();ctx.roundRect(2,-48,7,26,3);ctx.fill();
 
-  let topC=topItem?topItem.topC:'#fef0f0';
-  let btmC=btmItem?btmItem.btmC:'#ffd1dc';
-  let btmS=btmItem?btmItem.btmS:'pleatSkirt';
-  let shC=shItem?shItem.shC:'#ffb3ba';
-  let shS=shItem?shItem.shS:'maryjane';
-
-  // ---- 腿 ----
-  mctx.fillStyle='#fef0e0';
-  mctx.fillRect(cx-10,cy+42,9,48);mctx.fillRect(cx+2,cy+42,9,48);
-
-  // ---- 鞋子 ----
-  function drawShoe(sx,sy,cl,st){
-    if(st==='heels'){mctx.fillStyle=cl;mctx.beginPath();mctx.ellipse(sx,sy+5,10,5,0,0,Math.PI*2);mctx.fill();mctx.fillStyle=cl;mctx.fillRect(sx-1,sy-4,3,12);mctx.fillStyle='rgba(0,0,0,.1)';mctx.fillRect(sx-1,sy+8,3,3);}
-    else if(st==='boots'){mctx.fillStyle=cl;mctx.fillRect(sx-5,sy-8,11,18);mctx.beginPath();mctx.ellipse(sx+1,sy+10,6,4,0,0,Math.PI*2);mctx.fill();}
-    else if(st==='sneakers'){mctx.fillStyle=cl;mctx.beginPath();mctx.ellipse(sx+1,sy+7,9,5,0,0,Math.PI*2);mctx.fill();mctx.fillStyle='rgba(0,0,0,.08)';mctx.fillRect(sx-3,sy+4,7,2);}
-    else if(st==='ballet'){mctx.fillStyle=cl;mctx.beginPath();mctx.ellipse(sx+1,sy+5,7,3.5,0,0,Math.PI*2);mctx.fill();mctx.fillStyle='#ffe0b2';mctx.beginPath();mctx.arc(sx+2,sy+1,2.5,0,Math.PI*2);mctx.fill();}
-    else if(st==='sandals'){mctx.fillStyle=cl;mctx.beginPath();mctx.ellipse(sx+1,sy+5,8,3,0,0,Math.PI*2);mctx.fill();mctx.strokeStyle=cl;mctx.lineWidth=1;mctx.beginPath();mctx.moveTo(sx-3,sy-1);mctx.lineTo(sx+2,sy+5);mctx.stroke();}
-    else{mctx.fillStyle=cl;mctx.beginPath();mctx.ellipse(sx+1,sy+6,8,4,0,0,Math.PI*2);mctx.fill();mctx.fillStyle='rgba(0,0,0,.06)';mctx.fillRect(sx-2,sy+3,6,2);mctx.fillStyle='#ffe0b2';mctx.beginPath();mctx.arc(sx+3,sy+2,2,0,Math.PI*2);mctx.fill();}
+  // === 鞋子 ===
+  function sh(ox,oy){
+    ctx.fillStyle=shC;
+    if(shS==='heels'){ctx.beginPath();ctx.ellipse(ox,oy,7,3.5,0,0,Math.PI*2);ctx.fill();ctx.fillRect(ox-2,oy-10,3,13);}
+    else if(shS==='boots'){ctx.fillRect(ox-4,oy-14,9,16);ctx.beginPath();ctx.ellipse(ox+1,oy+3,5,3,0,0,Math.PI*2);ctx.fill();}
+    else if(shS==='sneakers'){ctx.beginPath();ctx.ellipse(ox+1,oy+2,7,4,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(ox-3,oy-1,6,2);}
+    else if(shS==='ballet'){ctx.beginPath();ctx.ellipse(ox+1,oy,6,3,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffe0c0';ctx.beginPath();ctx.arc(ox+2,oy-3,2,0,Math.PI*2);ctx.fill();}
+    else if(shS==='sandals'){ctx.fillRect(ox-2,oy-4,5,3);ctx.beginPath();ctx.ellipse(ox+1,oy+1,6,2.5,0,0,Math.PI*2);ctx.fill();}
+    else{ctx.beginPath();ctx.ellipse(ox+1,oy+1,6,3.5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(0,0,0,.08)';ctx.fillRect(ox-2,oy-1,5,1.5);ctx.fillStyle='#ffe0c0';ctx.beginPath();ctx.arc(ox+3,oy-2,1.8,0,Math.PI*2);ctx.fill();}
   }
-  drawShoe(cx-9,cy+88,shC,shS);
-  drawShoe(cx+3,cy+88,shC,shS);
+  sh(-7,-24);sh(3,-24);
 
-  // ---- 下装 ----
+  // === 下装 ===
   if(btmS==='dress'||btmS==='longDress'){
-    mctx.fillStyle=btmC;mctx.beginPath();
-    let dy=btmS==='longDress'?cy+80:cy+50;
-    mctx.moveTo(cx-18,cy+30);mctx.quadraticCurveTo(cx-20,dy*.6,cx-10,dy);
-    mctx.lineTo(cx+10,dy);mctx.quadraticCurveTo(cx+20,dy*.6,cx+18,cy+30);
-    mctx.closePath();mctx.fill();
-    // 裙摆花纹
-    mctx.globalAlpha=.15;for(let i=0;i<6;i++){mctx.fillStyle='#fff';mctx.beginPath();mctx.arc(cx-12+i*5,dy-5-Math.sin(i)*4,3,0,Math.PI*2);mctx.fill();}mctx.globalAlpha=1;
+    let hem=btmS==='longDress'?-75:-58;
+    ctx.fillStyle=btmC;
+    ctx.beginPath();ctx.moveTo(-17,-34);ctx.quadraticCurveTo(-22,hem*.5,-12,hem);
+    ctx.lineTo(12,hem);ctx.quadraticCurveTo(22,hem*.5,17,-34);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=.8;
+    for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(-10+i*5,-35);ctx.lineTo(-13+i*5,hem);ctx.stroke();}
+    if(btmS==='longDress'){ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(-14,hem-6,28,6);}
   }else if(btmS==='jeans'){
-    mctx.fillStyle=btmC;mctx.fillRect(cx-12,cy+30,10,60);mctx.fillRect(cx+2,cy+30,10,60);
-    mctx.strokeStyle='rgba(0,0,0,.1)';mctx.lineWidth=.6;mctx.beginPath();mctx.moveTo(cx-9,cy+30);mctx.lineTo(cx-9,cy+90);mctx.stroke();mctx.beginPath();mctx.moveTo(cx+4,cy+30);mctx.lineTo(cx+4,cy+90);mctx.stroke();
+    ctx.fillStyle=btmC;
+    ctx.fillRect(-10,-36,8,38);ctx.fillRect(2,-36,8,38);
+    ctx.strokeStyle='rgba(0,0,0,.1)';ctx.lineWidth=.5;
+    ctx.beginPath();ctx.moveTo(-8,-36);ctx.lineTo(-8,2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(4,-36);ctx.lineTo(4,2);ctx.stroke();
   }else if(btmS==='widePants'){
-    mctx.fillStyle=btmC;mctx.beginPath();mctx.moveTo(cx-12,cy+30);mctx.lineTo(cx-16,cy+90);mctx.lineTo(cx-5,cy+90);mctx.lineTo(cx-4,cy+30);mctx.closePath();mctx.fill();
-    mctx.beginPath();mctx.moveTo(cx+4,cy+30);mctx.lineTo(cx+5,cy+90);mctx.lineTo(cx+16,cy+90);mctx.lineTo(cx+12,cy+30);mctx.closePath();mctx.fill();
+    ctx.fillStyle=btmC;
+    ctx.beginPath();ctx.moveTo(-11,-35);ctx.lineTo(-16,-2);ctx.lineTo(-5,-2);ctx.lineTo(-3,-35);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(3,-35);ctx.lineTo(5,-2);ctx.lineTo(16,-2);ctx.lineTo(11,-35);ctx.closePath();ctx.fill();
   }else if(btmS==='bloomPants'){
-    mctx.fillStyle=btmC;mctx.beginPath();mctx.moveTo(cx-11,cy+30);mctx.quadraticCurveTo(cx-18,cy+55,cx-10,cy+72);mctx.lineTo(cx+10,cy+72);mctx.quadraticCurveTo(cx+18,cy+55,cx+11,cy+30);mctx.closePath();mctx.fill();
-    mctx.strokeStyle='rgba(0,0,0,.06)';mctx.lineWidth=.5;mctx.beginPath();mctx.moveTo(cx-5,cy+35);mctx.lineTo(cx-5,cy+68);mctx.stroke();
+    ctx.fillStyle=btmC;
+    ctx.beginPath();ctx.moveTo(-10,-35);ctx.quadraticCurveTo(-17,-18,-9,-5);
+    ctx.quadraticCurveTo(-12,-22,-10,-35);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(10,-35);ctx.quadraticCurveTo(17,-18,9,-5);ctx.quadraticCurveTo(12,-22,10,-35);ctx.closePath();ctx.fill();
+    ctx.fillRect(-6,-35,12,35);
   }else{
-    // 默认裙子
-    mctx.fillStyle=btmC;mctx.beginPath();mctx.moveTo(cx-16,cy+30);mctx.quadraticCurveTo(cx-20,cy+48,cx-12,cy+58);mctx.lineTo(cx+12,cy+58);mctx.quadraticCurveTo(cx+20,cy+48,cx+16,cy+30);mctx.closePath();mctx.fill();
-    // 裙褶
-    mctx.strokeStyle='rgba(0,0,0,.08)';mctx.lineWidth=.5;
-    for(let i=0;i<4;i++){mctx.beginPath();mctx.moveTo(cx-10+i*7,cy+30);mctx.lineTo(cx-12+i*7,cy+55);mctx.stroke();}
+    ctx.fillStyle=btmC;
+    ctx.beginPath();ctx.moveTo(-17,-34);ctx.quadraticCurveTo(-22,-18,-13,-4);
+    ctx.lineTo(13,-4);ctx.quadraticCurveTo(22,-18,17,-34);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.06)';ctx.lineWidth=.4;
+    for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(-11+i*6,-34);ctx.lineTo(-13+i*6,-6);ctx.stroke();}
   }
-  // 腰带
-  if(btmS==='jeans'||btmS==='pleatSkirt'||btmS==='aSkirt'||btmS==='widePants'||btmS==='bloomPants'){
-    mctx.fillStyle='#d4a574';mctx.fillRect(cx-14,cy+28,28,5);mctx.fillStyle='#c9a84c';mctx.beginPath();mctx.arc(cx,cy+30.5,2.5,0,Math.PI*2);mctx.fill();
+  // 腰带/腰线
+  if(btmS!=='dress'&&btmS!=='longDress'&&btmS!=='academia'){
+    ctx.fillStyle='#d4a090';ctx.fillRect(-13,-37,26,4);
+    ctx.fillStyle='#c9a060';ctx.beginPath();ctx.arc(0,-35,2.2,0,Math.PI*2);ctx.fill();
   }
 
-  // ---- 上衣 ----
-  let topS=topItem?topItem.topS:'lace';
+  // === 上衣 ===
   if(topS==='coat'||topS==='sweater'||topS==='hoodie'){
-    mctx.fillStyle=topC;mctx.beginPath();mctx.roundRect(cx-18,cy-8,36,40,6);mctx.fill();
-    if(topS==='coat'){mctx.fillStyle=darken(topC,.08);mctx.fillRect(cx+6,cy,2,33);mctx.fillRect(cx-8,cy,2,33);}
-    if(topS==='hoodie'){mctx.fillStyle=darken(topC,.05);mctx.beginPath();mctx.arc(cx,cy-12,14,Math.PI,0);mctx.fill();}
-  }else if(topS==='vest'){
-    mctx.fillStyle=topC;mctx.fillRect(cx-14,cy-5,28,34);mctx.fillStyle='rgba(0,0,0,.06)';mctx.fillRect(cx,cy-2,2,32);
-    // 内搭白T
-    mctx.fillStyle='#fefefe';mctx.fillRect(cx-10,cy-3,20,6);
+    ctx.fillStyle=topC;
+    ctx.beginPath();ctx.moveTo(-18,-70);ctx.quadraticCurveTo(-20,-45,-18,-36);ctx.lineTo(18,-36);ctx.quadraticCurveTo(20,-45,18,-70);ctx.closePath();ctx.fill();
+    if(topS==='coat'){
+      ctx.fillStyle=darken(topC,.06);ctx.fillRect(4,-50,2.5,16);ctx.fillRect(-7,-50,2.5,16);
+      ctx.fillStyle=darken(topC,.04);ctx.fillRect(-17,-48,34,3);
+    }
+    if(topS==='sweater'){
+      ctx.strokeStyle='rgba(0,0,0,.04)';ctx.lineWidth=.4;
+      for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(-14,-65+i*6);ctx.lineTo(14,-65+i*6);ctx.stroke();}
+    }
+    if(topS==='hoodie'){
+      ctx.fillStyle=darken(topC,.05);ctx.beginPath();ctx.arc(0,-76,12,Math.PI,.2);ctx.arc(0,-76,12,-.2,0);ctx.fill();
+    }
   }else{
-    mctx.fillStyle=topC;mctx.beginPath();mctx.roundRect(cx-16,cy-6,32,36,5);mctx.fill();
-    if(topS==='bow'){mctx.fillStyle=darken(topC,.15);mctx.beginPath();mctx.moveTo(cx,cy-1);mctx.ellipse(cx-6,cy-2,5,3,-.3,0,Math.PI*2);mctx.ellipse(cx+6,cy-2,5,3,.3,0,Math.PI*2);mctx.fill();mctx.beginPath();mctx.arc(cx,cy,2.5,0,Math.PI*2);mctx.fill();}
-    if(topS==='knit'){mctx.strokeStyle='rgba(0,0,0,.06)';mctx.lineWidth=.4;for(let i=0;i<4;i++){mctx.beginPath();mctx.moveTo(cx-12,cy-2+i*8);mctx.lineTo(cx+12,cy-2+i*8);mctx.stroke();}}
+    ctx.fillStyle=topC;
+    ctx.beginPath();ctx.moveTo(-16,-70);ctx.quadraticCurveTo(-19,-46,-17,-36);ctx.lineTo(17,-36);ctx.quadraticCurveTo(19,-46,16,-70);ctx.closePath();ctx.fill();
+    if(topS==='bow'){
+      ctx.fillStyle=darken(topC,.12);ctx.beginPath();ctx.moveTo(0,-54);
+      ctx.ellipse(-5,-56,4.5,2.8,-.3,0,Math.PI*2);ctx.ellipse(5,-56,4.5,2.8,.3,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(0,-55,2,0,Math.PI*2);ctx.fill();
+    }
+    if(topS==='knit'){
+      ctx.strokeStyle='rgba(0,0,0,.04)';ctx.lineWidth=.3;
+      for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(-13,-64+i*5);ctx.lineTo(13,-64+i*5);ctx.stroke();}
+    }
+    if(topS==='vest'){
+      ctx.fillStyle='rgba(0,0,0,.04)';ctx.fillRect(0,-50,2,16);
+      ctx.fillStyle='#fefefe';ctx.fillRect(-10,-54,20,8);
+    }
   }
 
   // 手臂
-  mctx.fillStyle='#fef0e0';mctx.beginPath();mctx.roundRect(cx-22,cy-2,8,28,4);mctx.fill();mctx.beginPath();mctx.roundRect(cx+14,cy-2,8,28,4);mctx.fill();
+  ctx.fillStyle='#fef2e8';
+  // 上臂
+  ctx.beginPath();ctx.moveTo(-16,-66);ctx.quadraticCurveTo(-24,-50,-22,-42);ctx.lineTo(-16,-42);ctx.lineTo(-14,-62);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(16,-66);ctx.quadraticCurveTo(24,-50,22,-42);ctx.lineTo(16,-42);ctx.lineTo(14,-62);ctx.closePath();ctx.fill();
   // 手
-  mctx.fillStyle='#fef0e0';mctx.beginPath();mctx.arc(cx-18,cy+28,6,0,Math.PI*2);mctx.fill();mctx.beginPath();mctx.arc(cx+18,cy+28,6,0,Math.PI*2);mctx.fill();
+  ctx.beginPath();ctx.arc(-19,-42,5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(19,-42,5,0,Math.PI*2);ctx.fill();
+  // 手指
+  ctx.strokeStyle='rgba(0,0,0,.06)';ctx.lineWidth=.5;
+  ctx.beginPath();ctx.moveTo(-22,-46);ctx.lineTo(-22,-44);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(22,-46);ctx.lineTo(22,-44);ctx.stroke();
 
-  // ---- 脖子+头 ----
-  mctx.fillStyle='#fef0e0';mctx.fillRect(cx-4,cy-16,8,10);
-  // 脸
-  mctx.fillStyle='#fef5f0';mctx.beginPath();mctx.arc(cx,cy-36,22,0,Math.PI*2);mctx.fill();
+  // === 脖子 ===
+  ctx.fillStyle='#fef2e8';ctx.fillRect(-4,-74,8,7);
+
+  // === 头部 ===
+  ctx.fillStyle='#fef7f2';
+  ctx.beginPath();ctx.arc(0,-98,22,0,Math.PI*2);ctx.fill();
+
   // 腮红
-  mctx.fillStyle='rgba(255,180,180,.35)';mctx.beginPath();mctx.ellipse(cx-12,cy-30,6,3.5,0,0,Math.PI*2);mctx.fill();mctx.beginPath();mctx.ellipse(cx+12,cy-30,6,3.5,0,0,Math.PI*2);mctx.fill();
-  // 眼睛
-  mctx.fillStyle='#3a1a1a';mctx.beginPath();mctx.arc(cx-8,cy-38,3.2,0,Math.PI*2);mctx.fill();mctx.beginPath();mctx.arc(cx+8,cy-38,3.2,0,Math.PI*2);mctx.fill();
-  mctx.fillStyle='#fff';mctx.beginPath();mctx.arc(cx-7,cy-39,1.2,0,Math.PI*2);mctx.fill();mctx.beginPath();mctx.arc(cx+9,cy-39,1.2,0,Math.PI*2);mctx.fill();
-  // 睫毛
-  mctx.strokeStyle='#3a1a1a';mctx.lineWidth=1.2;mctx.beginPath();mctx.arc(cx-8,cy-40,5,Math.PI*.15,Math.PI*.85);mctx.stroke();mctx.beginPath();mctx.arc(cx+8,cy-40,5,Math.PI*.15,Math.PI*.85);mctx.stroke();
+  ctx.fillStyle='rgba(255,179,170,.4)';
+  ctx.beginPath();ctx.ellipse(-12,-93,7,4.5,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(12,-93,7,4.5,0,0,Math.PI*2);ctx.fill();
+
+  // 眼睛 - 大而闪亮的动漫眼
+  function drawEye(ex,ey){
+    // 眼眶
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(ex,ey,8,10,-.15,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#3a1a2a';ctx.lineWidth=1.8;ctx.beginPath();ctx.ellipse(ex,ey,8,10,-.15,0,Math.PI*2);ctx.stroke();
+    // 虹膜
+    let ig=ctx.createRadialGradient(ex-1,ey+1,1,ex,ey,7);
+    ig.addColorStop(0,'#5a3a4a');ig.addColorStop(.6,'#3a1a2a');ig.addColorStop(1,'#1a0a1a');
+    ctx.fillStyle=ig;ctx.beginPath();ctx.arc(ex,ey,6.5,0,Math.PI*2);ctx.fill();
+    // 瞳孔
+    ctx.fillStyle='#0a0a0a';ctx.beginPath();ctx.arc(ex,ey,3,0,Math.PI*2);ctx.fill();
+    // 高光
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ex-2,ey-3,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(ex+2,ey-1,1.2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(ex-3,ey-5,1,0,Math.PI*2);ctx.fill();
+    // 睫毛
+    ctx.strokeStyle='#3a1a2a';ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.arc(ex,ey-2,9.5,Math.PI*.15,Math.PI*.85);ctx.stroke();
+  }
+  drawEye(-8,-100);drawEye(8,-100);
+
   // 眉毛
-  mctx.strokeStyle='#6b4a3a';mctx.lineWidth=1.5;mctx.beginPath();mctx.moveTo(cx-12,cy-44);mctx.quadraticCurveTo(cx-8,cy-47,cx-4,cy-44);mctx.stroke();mctx.beginPath();mctx.moveTo(cx+4,cy-44);mctx.quadraticCurveTo(cx+8,cy-47,cx+12,cy-44);mctx.stroke();
+  ctx.strokeStyle='#5a3a3a';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(-15,-112);ctx.quadraticCurveTo(-8,-116,-2,-113);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(2,-113);ctx.quadraticCurveTo(8,-116,15,-112);ctx.stroke();
+
   // 鼻子
-  mctx.fillStyle='rgba(255,180,160,.5)';mctx.beginPath();mctx.arc(cx,cy-33,2,0,Math.PI*2);mctx.fill();
-  // 嘴巴
-  mctx.strokeStyle='#e89090';mctx.lineWidth=1.3;mctx.beginPath();mctx.arc(cx,cy-28,5,.1,Math.PI*.9);mctx.stroke();
-  // 刘海
-  mctx.fillStyle='#3a1a2a';mctx.beginPath();mctx.arc(cx,cy-48,18,Math.PI*.15,Math.PI*.85);mctx.fill();
-  mctx.fillStyle='#3a1a2a';mctx.beginPath();mctx.arc(cx-10,cy-52,8,Math.PI*.2,Math.PI*.8);mctx.fill();mctx.beginPath();mctx.arc(cx+10,cy-52,8,Math.PI*.2,Math.PI*.8);mctx.fill();
-  // 头发侧边
-  mctx.fillStyle='#3a1a2a';mctx.beginPath();mctx.ellipse(cx-20,cy-36,6,18,-.3,0,Math.PI*2);mctx.fill();mctx.beginPath();mctx.ellipse(cx+20,cy-36,6,18,.3,0,Math.PI*2);mctx.fill();
+  ctx.fillStyle='rgba(255,180,160,.5)';ctx.beginPath();ctx.arc(0,-94,1.8,0,Math.PI*2);ctx.fill();
+  // 鼻尖高光
+  ctx.fillStyle='rgba(255,255,255,.3)';ctx.beginPath();ctx.arc(-.5,-95,1,0,Math.PI*2);ctx.fill();
 
-  // ---- 配饰 ----
-  if(hasCrown){mctx.fillStyle='#ffd700';mctx.beginPath();mctx.moveTo(cx-12,cy-58);mctx.lineTo(cx-16,cy-70);mctx.lineTo(cx-6,cy-62);mctx.lineTo(cx,cy-72);mctx.lineTo(cx+6,cy-62);mctx.lineTo(cx+16,cy-70);mctx.lineTo(cx+12,cy-58);mctx.closePath();mctx.fill();mctx.fillStyle='#fff';mctx.beginPath();mctx.arc(cx,cy-68,2.5,0,Math.PI*2);mctx.fill();}
-  if(hasBow){mctx.fillStyle='#ffb3ba';mctx.beginPath();mctx.moveTo(cx-16,cy-54);mctx.ellipse(cx-10,cy-56,7,5,-.4,0,Math.PI*2);mctx.ellipse(cx+10,cy-56,7,5,.4,0,Math.PI*2);mctx.fill();mctx.beginPath();mctx.arc(cx,cy-55,3,0,Math.PI*2);mctx.fill();}
-  if(hasHat){mctx.fillStyle='#fce4ec';mctx.beginPath();mctx.ellipse(cx,cy-54,28,8,0,0,Math.PI*2);mctx.fill();mctx.beginPath();mctx.ellipse(cx,cy-60,16,12,0,0,Math.PI*2);mctx.fill();mctx.fillStyle='#ffb3ba';mctx.beginPath();mctx.arc(cx,cy-61,4,0,Math.PI*2);mctx.fill();}
-  if(hasGlass){mctx.strokeStyle='#333';mctx.lineWidth=2.5;mctx.beginPath();mctx.arc(cx-8,cy-38,8,0,Math.PI*2);mctx.stroke();mctx.beginPath();mctx.arc(cx+8,cy-38,8,0,Math.PI*2);mctx.stroke();mctx.strokeStyle='#555';mctx.lineWidth=1;mctx.beginPath();mctx.moveTo(cx,cy-38);mctx.lineTo(cx,cy-38);mctx.stroke();}
+  // 嘴巴 - 微笑
+  ctx.strokeStyle='#e89090';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(0,-88.5,5.5,.15,Math.PI*.85);ctx.stroke();
+  ctx.fillStyle='#f8a0a0';ctx.beginPath();ctx.arc(0,-86.5,2.5,Math.PI*.15,Math.PI*.85);ctx.fill();
 
-  // 地面倒影
-  mctx.fillStyle='rgba(0,0,0,.04)';mctx.beginPath();mctx.ellipse(cx,mH-6,22,4,0,0,Math.PI*2);mctx.fill();
+  // === 头发 ===
+  // 后发
+  ctx.fillStyle='#3a1a28';
+  ctx.beginPath();ctx.arc(0,-96,22.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#4a2535';ctx.beginPath();ctx.arc(3,-98,10,0,Math.PI*2);ctx.fill();
+
+  // 前发/刘海
+  ctx.fillStyle='#3a1a28';
+  ctx.beginPath();ctx.moveTo(-19,-108);
+  ctx.quadraticCurveTo(-15,-118,-2,-120);
+  ctx.quadraticCurveTo(8,-121,18,-110);
+  ctx.quadraticCurveTo(22,-105,20,-100);
+  ctx.quadraticCurveTo(16,-97,10,-98);
+  ctx.quadraticCurveTo(4,-95,-2,-97);
+  ctx.quadraticCurveTo(-10,-96,-16,-100);
+  ctx.quadraticCurveTo(-22,-100,-19,-108);
+  ctx.closePath();ctx.fill();
+  // 刘海层次
+  ctx.fillStyle='#4a2535';
+  ctx.beginPath();ctx.moveTo(-8,-119);ctx.quadraticCurveTo(0,-122,6,-118);
+  ctx.quadraticCurveTo(10,-116,14,-108);ctx.quadraticCurveTo(6,-112,-6,-112);
+  ctx.quadraticCurveTo(-12,-110,-8,-119);ctx.closePath();ctx.fill();
+
+  // 侧发
+  ctx.fillStyle='#3a1a28';
+  ctx.beginPath();ctx.ellipse(-19,-96,5,16,-.3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(19,-96,5,16,.3,0,Math.PI*2);ctx.fill();
+  // 发尾
+  ctx.beginPath();ctx.moveTo(-18,-82);ctx.quadraticCurveTo(-14,-73,-10,-78);ctx.lineTo(-15,-84);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(18,-82);ctx.quadraticCurveTo(14,-73,10,-78);ctx.lineTo(15,-84);ctx.closePath();ctx.fill();
+
+  // === 配饰 ===
+  if(o.crown){
+    ctx.fillStyle='#ffd700';ctx.beginPath();
+    ctx.moveTo(-11,-118);ctx.lineTo(-15,-128);ctx.lineTo(-5,-121);
+    ctx.lineTo(0,-132);ctx.lineTo(5,-121);ctx.lineTo(15,-128);ctx.lineTo(11,-118);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,-128,2.2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ff6b8a';ctx.beginPath();ctx.arc(0,-125,1.2,0,Math.PI*2);ctx.fill();
+  }
+  if(o.bow){
+    ctx.fillStyle='#ffb3ba';ctx.beginPath();
+    ctx.moveTo(-16,-115);ctx.ellipse(-10,-118,6,4.5,-.4,0,Math.PI*2);
+    ctx.ellipse(10,-118,6,4.5,.4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(0,-117,2.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-2,-119,1,0,Math.PI*2);ctx.fill();
+  }
+  if(o.hat){
+    ctx.fillStyle='#fce4ec';ctx.beginPath();ctx.ellipse(0,-115,26,7,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(0,-120,15,12,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#ffb3ba';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#ffb3ba';ctx.beginPath();ctx.arc(0,-121,3.5,0,Math.PI*2);ctx.fill();
+  }
+  if(o.glass){
+    ctx.strokeStyle='#3a2a3a';ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.arc(-8,-100,7.5,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.arc(8,-100,7.5,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='#5a4a5a';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(1,-100);ctx.lineTo(0,-100);ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+// 房间中的董婷
+function drawRoomDongting(){
+  let dx=480,dy=FL+2; // 脚底位置
+  drawDongtingChar(ctx,dx,dy,.55);
+  // 名字标签
+  let nAlpha=Math.sin(T*.04)*.2+.7;
+  ctx.fillStyle=`rgba(255,180,200,${nAlpha})`;ctx.font='9px "KaiTi","楷体",serif';ctx.textAlign='center';
+  ctx.fillText('💕 董婷',dx,dy-128);
+  ctx.textAlign='start';
+}
+
+// 衣柜镜子中的董婷
+function drawMirrorDongting(){
+  let mc=document.getElementById('mirrorCanvas');if(!mc)return;
+  let mctx=mc.getContext('2d');let mW=180,mH=280;
+  mctx.clearRect(0,0,mW,mH);
+  let bg=mctx.createRadialGradient(mW/2,mH/2,30,mW/2,mH/2,160);
+  bg.addColorStop(0,'#fef8fa');bg.addColorStop(1,'#f2dce4');
+  mctx.fillStyle=bg;mctx.fillRect(0,0,mW,mH);
+  mctx.fillStyle='#e8d0c8';mctx.fillRect(0,mH-28,mW,28);
+  drawDongtingChar(mctx,mW/2,mH-16,.85);
 }
 
 function openWardrobe(){
   document.getElementById('wardrobeOverlay').classList.add('show');
   pickedOutfit=[];
   buildWardrobe();
-  setTimeout(()=>drawDongting(),100);
+  setTimeout(()=>drawMirrorDongting(),100);
 }
 function closeWardrobe(){
   document.getElementById('wardrobeOverlay').classList.remove('show');
@@ -1160,7 +1288,7 @@ function updateOOTD(){
   else if(pickedOutfit.length<=2)el.innerHTML='💖 '+pickedOutfit.map(p=>p.e+p.n).join('+')+'<br>继续挑~';
   else if(pickedOutfit.length<=4)el.innerHTML='✨ '+pickedOutfit.map(p=>p.e+p.n).join('+')+'<br>好品味！';
   else el.innerHTML='👑 OOTD<br>'+pickedOutfit.map(p=>p.e+p.n).join('+')+'<br>💯满分！';
-  drawDongting();
+  drawMirrorDongting();
   if(pickedOutfit.length>0)for(let i=0;i<6;i++)hr.push(mkHeart(450,300+Math.random()*80));
 }
 function randomOutfit(){
@@ -1195,7 +1323,7 @@ function buildWardrobe(){
       row.appendChild(d);
     });c.appendChild(row);
   });
-  setTimeout(()=>drawDongting(),50);
+  setTimeout(()=>drawMirrorDongting(),50);
 }
 
 // ============ 猫咪聊天 ============
