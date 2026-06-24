@@ -53,6 +53,49 @@ canvas{border-radius:10px;display:block;cursor:pointer;}
 .mood-response{margin-top:8px;color:#b39ddb;font-size:13px;letter-spacing:2px;line-height:2;min-height:36px;transition:all .4s;}
 .mood-close{display:inline-block;color:#555;font-size:10px;cursor:pointer;margin-top:10px;letter-spacing:1px;}
 .mood-close:hover{color:#998;}
+
+/* ===== 衣柜弹窗 ===== */
+.wardrobe-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .35s;}
+.wardrobe-overlay.show{opacity:1;pointer-events:auto;}
+.wardrobe-panel{
+  background:linear-gradient(180deg,#2a1038,#1a0a28);border:3px solid #e91e63;
+  border-radius:22px;padding:20px 24px;max-width:520px;width:94%;max-height:80vh;overflow-y:auto;
+  box-shadow:0 0 80px rgba(233,30,99,.35),0 0 0 8px rgba(233,30,99,.08);
+  text-align:center;position:relative;
+}
+.wardrobe-panel h2{color:#f8bbd0;font-size:16px;letter-spacing:3px;margin-bottom:14px;}
+.wardrobe-panel h2 span{font-size:24px;}
+.wardrobe-cat{font-size:11px;color:#c090a0;letter-spacing:2px;margin:12px 0 6px;border-top:1px solid rgba(233,30,99,.15);padding-top:8px;}
+.wardrobe-items{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.wardrobe-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;cursor:pointer;transition:all .25s;min-width:68px;
+}
+.wardrobe-item:hover{background:rgba(233,30,99,.15);border-color:#e91e63;transform:translateY(-3px);box-shadow:0 6px 18px rgba(233,30,99,.2);}
+.wardrobe-item .w-emoji{font-size:36px;line-height:1.1;transition:transform .3s;}
+.wardrobe-item:hover .w-emoji{transform:scale(1.2) rotate(-5deg);}
+.wardrobe-item .w-name{font-size:10px;color:#ccc;letter-spacing:1px;}
+.wardrobe-item .w-color{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);margin-top:1px;}
+.wardrobe-pick{font-size:12px;color:#f8bbd0;margin-top:14px;letter-spacing:2px;min-height:22px;line-height:1.6;}
+.wardrobe-close{display:inline-block;color:#666;font-size:10px;cursor:pointer;margin-top:10px;letter-spacing:1px;}
+.wardrobe-close:hover{color:#e91e63;}
+.wardrobe-panel::-webkit-scrollbar{width:3px;}
+.wardrobe-panel::-webkit-scrollbar-thumb{background:rgba(233,30,99,.2);border-radius:2px;}
+
+/* ===== 猫咪聊天弹窗 ===== */
+.cat-overlay{position:fixed;inset:0;z-index:210;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.cat-overlay.show{opacity:1;pointer-events:auto;}
+.cat-bubble{background:linear-gradient(180deg,#2d1840,#1a0a28);border:3px solid #ffb3ba;border-radius:24px;padding:22px 28px;max-width:360px;width:90%;box-shadow:0 0 60px rgba(255,179,186,.3);text-align:center;position:relative;}
+.cat-bubble::before{content:'🐱';position:absolute;top:-42px;left:50%;transform:translateX(-50%);font-size:52px;animation:catBounce .6s ease-in-out infinite alternate;}
+@keyframes catBounce{from{transform:translateX(-50%) translateY(0);}to{transform:translateX(-50%) translateY(-10px);}}
+.cat-bubble h2{color:#ffb3ba;font-size:15px;letter-spacing:2px;margin:14px 0 10px;}
+.cat-emoji-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:8px;}
+.cat-emoji-btn{font-size:30px;padding:8px 12px;border:1px solid rgba(255,179,186,.2);border-radius:14px;cursor:pointer;background:transparent;transition:all .2s;}
+.cat-emoji-btn:hover{border-color:#ffb3ba;transform:scale(1.18);box-shadow:0 0 14px rgba(255,179,186,.25);}
+.cat-reply{font-size:13px;color:#e0c0d0;letter-spacing:2px;line-height:1.9;min-height:28px;}
+.cat-close{display:inline-block;color:#665;font-size:10px;cursor:pointer;margin-top:8px;letter-spacing:1px;}
+.cat-close:hover{color:#ffb3ba;}
 </style>
 </head>
 <body>
@@ -66,12 +109,30 @@ canvas{border-radius:10px;display:block;cursor:pointer;}
   </div>
 </div>
 
+<div class="wardrobe-overlay" id="wardrobeOverlay">
+  <div class="wardrobe-panel">
+    <h2><span>👗</span> 董婷的梦幻衣橱 <span>👗</span></h2>
+    <div id="wardrobeContent"></div>
+    <div class="wardrobe-pick" id="wardrobePick"></div>
+    <span class="wardrobe-close" onclick="closeWardrobe()">✨ 关上衣橱 ✨</span>
+  </div>
+</div>
+
+<div class="cat-overlay" id="catOverlay">
+  <div class="cat-bubble">
+    <h2>🐱 喵~ 董婷今天开心吗？</h2>
+    <div class="cat-emoji-row" id="catEmojiRow"></div>
+    <div class="cat-reply" id="catReply"></div>
+    <span class="cat-close" onclick="closeCatChat()">🐾 蹭蹭你 ~ 喵</span>
+  </div>
+</div>
+
 <div class="wrap">
 <div class="room-box">
   <div class="title">🌸 董婷的浪漫小屋 🌸</div>
   <div class="sub">💖 Healing Room · 治愈你的每一天</div>
   <canvas id="c" width="900" height="560"></canvas>
-  <div class="tip">🖱️ 点击房间撒花瓣 · 鼠标移动飘爱心<br>📝 点击面板「心情」按钮和黑板互动 · 右侧面板改造房间</div>
+  <div class="tip">🖱️ 点击房间撒花瓣 · 鼠标移动飘爱心<br>📝 点击衣柜打开衣橱👗 · 点小猫聊天🐱 · 黑板写心情 · 右侧面板改造房间</div>
 </div>
 <div class="ctrl" id="ctrl">
   <h3>🎨 改造面板</h3>
@@ -208,50 +269,56 @@ function drawFloor(){
   ctx.fillStyle=sg;ctx.fillRect(0,FL-5,W,20);
 }
 
+// ============ 窗户开关动画进度 ============
+let _winAnim = 0; // 0=closed, 1=open
+function getWinProgress(){
+  let target = R.winOpen ? 1 : 0;
+  _winAnim += (target - _winAnim) * 0.08;
+  if(Math.abs(target - _winAnim) < 0.001) _winAnim = target;
+  return _winAnim;
+}
+
 // ============ 窗户 + 天气系统 ============
 function drawWindow(){
   let wx=300,wy=115,ww=300,wh=200;
+  let openP = getWinProgress(); // 0→1 平滑过渡
+
+  // === 裁剪到窗内区域 ===
+  ctx.save();
+  ctx.beginPath();ctx.roundRect(wx+2,wy+2,ww-4,wh-4,1);ctx.clip();
 
   // --- 窗外天气 ---
   if(R.weather==='sunny'){
     let sg=ctx.createLinearGradient(wx,wy,wx,wy+wh);
     sg.addColorStop(0,'#87ceeb');sg.addColorStop(.5,'#b0e0f0');sg.addColorStop(1,'#d4eff8');
     ctx.fillStyle=sg;ctx.fillRect(wx,wy,ww,wh);
-    // 太阳
     let sunX=wx+ww-50,sunY=wy+30;
     let sunG=ctx.createRadialGradient(sunX,sunY,16,sunX,sunY,50);
     sunG.addColorStop(0,'rgba(255,240,100,.9)');sunG.addColorStop(.5,'rgba(255,220,80,.3)');sunG.addColorStop(1,'rgba(255,200,60,0)');
     ctx.fillStyle=sunG;ctx.beginPath();ctx.arc(sunX,sunY,50,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#fffde0';ctx.beginPath();ctx.arc(sunX,sunY,22,0,Math.PI*2);ctx.fill();
-    // 白云
     function cloud(cx,cy,s){ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();ctx.arc(cx,cy,s*.5,0,Math.PI*2);ctx.arc(cx+s*.3,cy-s*.1,s*.35,0,Math.PI*2);ctx.arc(cx-s*.35,cy+s*.05,s*.3,0,Math.PI*2);ctx.arc(cx+s*.15,cy+s*.2,s*.25,0,Math.PI*2);ctx.fill();}
-    cloud(wx+55,wy+50,28);
-    cloud(wx+140,wy+25,24);
-    cloud(wx+200,wy+60,20);
+    cloud(wx+55,wy+50,28);cloud(wx+140,wy+25,24);cloud(wx+200,wy+60,20);
   }else if(R.weather==='rainy'){
     let sg=ctx.createLinearGradient(wx,wy,wx,wy+wh);
     sg.addColorStop(0,'#5a6a7a');sg.addColorStop(.6,'#7a8a9a');sg.addColorStop(1,'#8a9aaa');
     ctx.fillStyle=sg;ctx.fillRect(wx,wy,ww,wh);
-    // 云
-    ctx.fillStyle='rgba(100,110,120,.5)';
+    ctx.fillStyle='rgba(100,110,120,.45)';
     ctx.beginPath();ctx.arc(wx+70,wy+30,35,0,Math.PI*2);ctx.arc(wx+130,wy+20,40,0,Math.PI*2);ctx.arc(wx+190,wy+35,30,0,Math.PI*2);ctx.fill();
   }else if(R.weather==='snowy'){
     let sg=ctx.createLinearGradient(wx,wy,wx,wy+wh);
     sg.addColorStop(0,'#c8d8e8');sg.addColorStop(1,'#e8f0f8');
     ctx.fillStyle=sg;ctx.fillRect(wx,wy,ww,wh);
-    ctx.fillStyle='rgba(220,230,240,.4)';
+    ctx.fillStyle='rgba(220,230,240,.35)';
     ctx.beginPath();ctx.arc(wx+60,wy+25,40,0,Math.PI*2);ctx.arc(wx+150,wy+18,35,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#fff';ctx.fillRect(wx,wy+wh-30,ww,35);
-    for(let i=0;i<4;i++){ctx.fillStyle='#a0c0d0';ctx.beginPath();ctx.moveTo(wx+20+i*70,wy+wh-35);ctx.lineTo(wx+15+i*70,wy+wh-18);ctx.lineTo(wx+25+i*70,wy+wh-18);ctx.closePath();ctx.fill();}
+    ctx.fillStyle='#e8eef5';ctx.fillRect(wx,wy+wh-35,ww,40);
+    for(let i=0;i<5;i++){ctx.fillStyle='#a0c0d0';ctx.beginPath();ctx.moveTo(wx+10+i*65,wy+wh-40);ctx.lineTo(wx+5+i*65,wy+wh-22);ctx.lineTo(wx+15+i*65,wy+wh-22);ctx.closePath();ctx.fill();}
   }else if(R.weather==='rainbow'){
     let sg=ctx.createLinearGradient(wx,wy,wx,wy+wh);
     sg.addColorStop(0,'#ffe0d0');sg.addColorStop(1,'#ffe8e0');
     ctx.fillStyle=sg;ctx.fillRect(wx,wy,ww,wh);
     let rainbowCols=['#ff6b6b','#ffa502','#ffe66d','#a8e6cf','#6bb5ff','#a29bfe'];
-    for(let j=0;j<6;j++){
-      ctx.strokeStyle=rainbowCols[j];ctx.lineWidth=5;ctx.globalAlpha=.5;
-      ctx.beginPath();ctx.arc(wx+ww/2,wy+wh+10,60+j*8,Math.PI,0);ctx.stroke();
-    }
+    for(let j=0;j<6;j++){ctx.strokeStyle=rainbowCols[j];ctx.lineWidth=5;ctx.globalAlpha=.5;ctx.beginPath();ctx.arc(wx+ww/2,wy+wh+10,60+j*8,Math.PI,0);ctx.stroke();}
     ctx.globalAlpha=1;
     ctx.fillStyle='#fffde0';ctx.beginPath();ctx.arc(wx+ww-60,wy+35,20,0,Math.PI*2);ctx.fill();
   }else if(R.weather==='sunset'){
@@ -262,7 +329,7 @@ function drawWindow(){
     sunG.addColorStop(0,'rgba(255,140,60,.8)');sunG.addColorStop(1,'rgba(255,140,60,0)');
     ctx.fillStyle=sunG;ctx.beginPath();ctx.arc(wx+ww/2,wy+wh-20,70,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#ff8c42';ctx.beginPath();ctx.arc(wx+ww/2,wy+wh-20,24,0,Math.PI*2);ctx.fill();
-  }else{ // starry (default)
+  }else{ // starry
     let sg=ctx.createLinearGradient(wx,wy,wx,wy+wh);
     sg.addColorStop(0,'#1a1a3e');sg.addColorStop(.5,'#2d1b4e');sg.addColorStop(1,'#3a1a4e');
     ctx.fillStyle=sg;ctx.fillRect(wx,wy,ww,wh);
@@ -270,52 +337,89 @@ function drawWindow(){
     mg.addColorStop(0,'rgba(255,234,167,.3)');mg.addColorStop(1,'rgba(255,234,167,0)');
     ctx.fillStyle=mg;ctx.beginPath();ctx.arc(wx+ww-55,wy+28,50,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#ffeaa7';ctx.beginPath();ctx.arc(wx+ww-55,wy+28,20,0,Math.PI*2);ctx.fill();
-  }
-  // 窗外通用星星
-  if(R.weather==='starry'){
-    for(let i=0;i<12;i++){
-      let sx=wx+15+Math.random()*(ww-30),sy=wy+15+Math.random()*(wh-30);
+    for(let i=0;i<14;i++){
+      let sx=wx+10+Math.random()*(ww-20),sy=wy+10+Math.random()*(wh-20);
       let tw=Math.sin(T*.03+i*2.5)*.5+.5;
-      ctx.fillStyle=`rgba(255,255,255,${.2+tw*.8})`;
+      ctx.fillStyle=`rgba(255,255,255,${.25+tw*.75})`;
       ctx.beginPath();ctx.arc(sx,sy,.5+tw*1.3,0,Math.PI*2);ctx.fill();
     }
   }
 
-  // --- 窗户开关动画 ---
-  let openAngle = R.winOpen ? Math.min((T%120)/120, 1) * 0.55 : 0;
-  ctx.save();
+  ctx.restore(); // 结束裁剪
 
-  // 窗框
-  ctx.fillStyle='#fff';ctx.strokeStyle='#e0cdb8';ctx.lineWidth=5;
-  ctx.beginPath();ctx.roundRect(wx-3,wy-3,ww+6,wh+6,3);ctx.fill();ctx.stroke();
+  // === 画窗框（只画四边边框，不覆盖玻璃区域） ===
+  // 白色窗框 - 四条边分别画
+  ctx.fillStyle='#fff';
+  ctx.fillRect(wx-5,wy-5,ww+10,8);    // 上边
+  ctx.fillRect(wx-5,wy+wh-3,ww+10,8); // 下边
+  ctx.fillRect(wx-5,wy-5,8,wh+10);    // 左边
+  ctx.fillRect(wx+ww-3,wy-5,8,wh+10); // 右边
+  // 外框线
+  ctx.strokeStyle='#d4c0a8';ctx.lineWidth=4;
+  ctx.beginPath();ctx.roundRect(wx-4,wy-4,ww+8,wh+8,3);ctx.stroke();
+  // 内框线（玻璃边缘）
+  ctx.strokeStyle='#d0bfa0';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.roundRect(wx+2,wy+2,ww-4,wh-4,2);ctx.stroke();
 
-  if(R.winOpen && openAngle > 0.01){
-    // 窗户打开 - 画外开的窗扇
-    // 左扇
-    ctx.save();
-    ctx.translate(wx, wy+wh/2);
-    ctx.transform(1, 0, 0, 1 - openAngle, 0, 0);
-    ctx.fillStyle='#fff';ctx.strokeStyle='#d0c0a8';ctx.lineWidth=2.5;
-    ctx.beginPath();ctx.roundRect(0, -wh/2, ww/2, wh, 1);ctx.fill();ctx.stroke();
-    // 玻璃
-    ctx.fillStyle='rgba(200,220,240,.3)';ctx.fillRect(6, -wh/2+8, ww/2-12, wh-16);
-    ctx.restore();
-    // 右扇
-    ctx.save();
-    ctx.translate(wx+ww, wy+wh/2);
-    ctx.transform(1, 0, 0, 1 - openAngle, 0, 0);
-    ctx.fillStyle='#fff';ctx.strokeStyle='#d0c0a8';ctx.lineWidth=2.5;
-    ctx.beginPath();ctx.roundRect(-ww/2, -wh/2, ww/2, wh, 1);ctx.fill();ctx.stroke();
-    ctx.fillStyle='rgba(200,220,240,.3)';ctx.fillRect(-ww/2+6, -wh/2+8, ww/2-12, wh-16);
-    ctx.restore();
-  }else{
-    // 关闭 - 十字格
+  // === 窗户开关状态 ===
+  if(openP < 0.99){
+    // 窗户关闭 → 画十字格
+    let alpha = 1 - openP;
+    ctx.globalAlpha = alpha;
     ctx.strokeStyle='#e0cdb8';ctx.lineWidth=2.5;
     ctx.beginPath();ctx.moveTo(wx+ww/2,wy);ctx.lineTo(wx+ww/2,wy+wh);ctx.stroke();
     ctx.beginPath();ctx.moveTo(wx,wy+wh/2);ctx.lineTo(wx+ww,wy+wh/2);ctx.stroke();
+    // 玻璃反光
+    ctx.fillStyle=`rgba(200,220,240,${.12*alpha})`;
+    ctx.fillRect(wx+2,wy+2,ww/2-4,wh/2-4);
+    ctx.fillRect(wx+ww/2+2,wy+wh/2+2,ww/2-4,wh/2-4);
+    ctx.globalAlpha=1;
   }
 
-  ctx.restore();
+  if(openP > 0.01){
+    // 窗户打开 → 画外开的窗扇（梯形透视）
+    let a = openP;
+    let outW = 35; // 外开宽度
+    // 左扇 - 向外开，连接到左边墙
+    ctx.fillStyle='#fff';ctx.strokeStyle='#c8b898';ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(wx, wy);           // 左上（窗框）
+    ctx.lineTo(wx, wy+wh);        // 左下（窗框）
+    ctx.lineTo(wx-outW*a, wy+wh-12*a); // 左下外
+    ctx.lineTo(wx-outW*a, wy+14*a);    // 左上外
+    ctx.closePath();ctx.fill();ctx.stroke();
+    // 左扇玻璃
+    ctx.fillStyle=`rgba(180,210,240,${.3*a})`;
+    ctx.beginPath();
+    ctx.moveTo(wx+3, wy+4);
+    ctx.lineTo(wx+3, wy+wh-4);
+    ctx.lineTo(wx-outW*a+4, wy+wh-16*a);
+    ctx.lineTo(wx-outW*a+4, wy+18*a);
+    ctx.closePath();ctx.fill();
+
+    // 右扇 - 向外开
+    ctx.fillStyle='#fff';ctx.strokeStyle='#c8b898';ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(wx+ww, wy);
+    ctx.lineTo(wx+ww, wy+wh);
+    ctx.lineTo(wx+ww+outW*a, wy+wh-12*a);
+    ctx.lineTo(wx+ww+outW*a, wy+14*a);
+    ctx.closePath();ctx.fill();ctx.stroke();
+    // 右扇玻璃
+    ctx.fillStyle=`rgba(180,210,240,${.3*a})`;
+    ctx.beginPath();
+    ctx.moveTo(wx+ww-3, wy+4);
+    ctx.lineTo(wx+ww-3, wy+wh-4);
+    ctx.lineTo(wx+ww+outW*a-4, wy+wh-16*a);
+    ctx.lineTo(wx+ww+outW*a-4, wy+18*a);
+    ctx.closePath();ctx.fill();
+
+    // 窗扇上的横梁（跟随外开）
+    ctx.strokeStyle='#d0c0a8';ctx.lineWidth=1.2;
+    let lmx=wx-outW*a/2, lmy=wy+wh/2-2*a;
+    ctx.beginPath();ctx.moveTo(wx+2,wy+wh/2);ctx.lineTo(lmx,lmy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(wx+ww-2,wy+wh/2);ctx.lineTo(wx+ww+outW*a/2,lmy);ctx.stroke();
+  }
 
   // --- 窗帘 (丰富样式+颜色) ---
   let cc=R.curtC, wave=Math.sin(T*.015)*3;
@@ -614,6 +718,8 @@ function drawWardrobe(){
   if(R.wardS!=='plain'){ctx.globalAlpha=.2;miniFlower(wx+ww/4,wy-wh+55,13,'#a08070');miniFlower(wx+ww*3/4,wy-wh+55,13,'#a08070');if(R.wardS==='floral'){miniFlower(wx+ww/4,wy-wh+125,13,'#a08070');miniFlower(wx+ww*3/4,wy-wh+125,13,'#a08070');}ctx.globalAlpha=1;}
   ctx.fillStyle='#d4a574';ctx.beginPath();ctx.arc(wx+ww/2-3.5,wy-wh+90,4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(wx+ww/2+3.5,wy-wh+90,4,0,Math.PI*2);ctx.fill();
   if(R.flowerN!=='none'){let pal=['#ffb3ba','#ffc3a0','#ffd1dc'];for(let i=0;i<5;i++){ctx.fillStyle=pal[i%3];ctx.beginPath();ctx.arc(wx+15+i*22,wy-wh-8,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffe0b2';ctx.beginPath();ctx.arc(wx+15+i*22,wy-wh-8,2.5,0,Math.PI*2);ctx.fill();}}
+  // 衣柜点击提示
+  let wSpark=Math.sin(T*.06)*.4+.6;ctx.fillStyle=`rgba(255,200,220,${wSpark})`;ctx.font="9px Microsoft YaHei,sans-serif";ctx.textAlign="center";ctx.fillText("👆打开衣橱",wx+ww/2,wy-wh-14);ctx.textAlign="start";
 }
 
 // ============ 床头柜 ============
@@ -715,6 +821,8 @@ function drawHealingElements(){
   // Zzz 睡眠符号
   ctx.fillStyle='rgba(180,160,200,.5)';ctx.font='10px serif';
   ctx.fillText('z',catX+22,catY-16+catBreathe);
+  // 猫咪点击提示
+      let cHint=Math.sin(T*.07)*.4+.6;ctx.fillStyle=`rgba(255,200,220,${cHint})`;ctx.font="8px Microsoft YaHei,sans-serif";ctx.textAlign="center";ctx.fillText("👆戳我",catX,catY-32+catBreathe);ctx.textAlign="start";
   ctx.fillText('z',catX+28,catY-24+catBreathe);
   ctx.fillText('Z',catX+36,catY-34+catBreathe);
 }
@@ -791,6 +899,10 @@ C.addEventListener('click',e=>{
   if(x>175&&x<295&&y>210&&y<305){openMood();return;}
   // 点窗户 → 开关
   if(x>297&&x<603&&y>112&&y<315){R.winOpen=!R.winOpen;return;}
+  // 点衣柜 → 打开衣橱 (衣柜区域)
+  if(x>65&&x<195&&y>FL-185&&y<FL+5){openWardrobe();return;}
+  // 点小猫 → 喵喵聊天
+  if(x>305&&x<390&&y>FL-42&&y<FL+5){openCatChat();return;}
   // 撒花
   for(let i=0;i<12;i++){let a=i/12*Math.PI*2;fx.push({x,y,vx:Math.cos(a)*(1+Math.random()*2.5),vy:Math.sin(a)*(1+Math.random()*2.5),life:1,s:2+Math.random()*3,c:['#ffb3ba','#fad0c4','#ffecd2','#ffe0e6'][Math.floor(Math.random()*4)]});}
   for(let i=0;i<4;i++)hr.push(mkHeart(x,y));
@@ -827,11 +939,98 @@ function buildMoodEmojis(){
     b.onclick=()=>{
       R.mood=m.e;R.moodMsg=m.t;
       document.getElementById('moodResponse').innerHTML=m.msg;
-      // 小鸟特效
+  // 小鸟特效
       for(let i=0;i<30;i++)hr.push(mkHeart(450,200+Math.random()*200));
     };
     c.appendChild(b);
   });
+}
+
+// ============ 衣柜弹窗 ============
+const wardrobeItems = [
+  {cat:'👚 上衣',items:[
+    {e:'👚',n:'蕾丝衬衫',cl:'#fef0f0'},{e:'🎽',n:'吊带背心',cl:'#ffd1dc'},{e:'🧥',n:'风衣外套',cl:'#d4a08a'},{e:'👕',n:'针织开衫',cl:'#fce4ec'},
+    {e:'🦺',n:'牛仔马甲',cl:'#a0c0e0'},{e:'🧶',n:'毛衣开衫',cl:'#f8c8d0'},{e:'👔',n:'蝴蝶结衬衫',cl:'#fff'},{e:'🩱',n:'短款卫衣',cl:'#ffe0e0'},
+  ]},
+  {cat:'👗 连衣裙/下装',items:[
+    {e:'👗',n:'碎花连衣裙',cl:'#ffb3ba'},{e:'🥻',n:'吊带长裙',cl:'#ce93d8'},{e:'👖',n:'高腰牛仔裤',cl:'#8090c0'},{e:'🩳',n:'百褶短裙',cl:'#ffd1dc'},
+    {e:'👘',n:'学院风裙',cl:'#6b5b8a'},{e:'🩲',n:'A字裙',cl:'#f0c0c0'},{e:'👖',n:'阔腿裤',cl:'#d0c0a0'},{e:'🩳',n:'花苞裤',cl:'#fef0e0'},
+  ]},
+  {cat:'👠 鞋子',items:[
+    {e:'👠',n:'细高跟',cl:'#ff477e'},{e:'👢',n:'过膝长靴',cl:'#5c3a2a'},{e:'🥿',n:'玛丽珍鞋',cl:'#ffb3ba'},{e:'👟',n:'小白鞋',cl:'#fff'},
+    {e:'🩰',n:'芭蕾平底',cl:'#fce4ec'},{e:'👡',n:'绑带凉鞋',cl:'#d4a08a'},{e:'👢',n:'短靴',cl:'#3a1e12'},{e:'🥿',n:'蝴蝶结单鞋',cl:'#ffd1dc'},
+  ]},
+  {cat:'👜 包包',items:[
+    {e:'👜',n:'链条包',cl:'#ff477e'},{e:'👛',n:'珍珠手包',cl:'#fef0f0'},{e:'🎒',n:'双肩包',cl:'#ffb3ba'},{e:'👜',n:'托特包',cl:'#d4a08a'},
+    {e:'👝',n:'斜挎小包',cl:'#ce93d8'},{e:'👜',n:'水桶包',cl:'#e8c0a0'},
+  ]},
+  {cat:'💍 配饰',items:[
+    {e:'💍',n:'珍珠戒指',cl:'#fefefe'},{e:'👒',n:'遮阳帽',cl:'#fce4ec'},{e:'🧣',n:'丝巾',cl:'#ffd1dc'},{e:'🕶️',n:'猫眼墨镜',cl:'#333'},
+    {e:'💎',n:'水晶项链',cl:'#e0f0ff'},{e:'🎀',n:'蝴蝶发夹',cl:'#ffb3ba'},{e:'⌚',n:'手链',cl:'#d4a574'},{e:'👑',n:'小皇冠',cl:'#ffd700'},
+  ]},
+];
+let pickedOutfit = [];
+
+function openWardrobe(){
+  document.getElementById('wardrobeOverlay').classList.add('show');
+  pickedOutfit=[];
+  document.getElementById('wardrobePick').innerHTML='👆 点击衣服试穿搭配吧~';
+  buildWardrobe();
+}
+function closeWardrobe(){
+  document.getElementById('wardrobeOverlay').classList.remove('show');
+}
+function buildWardrobe(){
+  let c=document.getElementById('wardrobeContent');c.innerHTML='';
+  wardrobeItems.forEach(cat=>{
+    let lbl=document.createElement('div');lbl.className='wardrobe-cat';lbl.textContent=cat.cat;c.appendChild(lbl);
+    let row=document.createElement('div');row.className='wardrobe-items';
+    cat.items.forEach(it=>{
+      let d=document.createElement('div');d.className='wardrobe-item';
+      let sel=pickedOutfit.find(p=>p.n===it.n);if(sel)d.style.cssText='background:rgba(233,30,99,.25);border-color:#e91e63;box-shadow:0 0 12px rgba(233,30,99,.25);';
+      d.innerHTML=`<span class="w-emoji">${it.e}</span><span class="w-name">${it.n}</span><span class="w-color" style="background:${it.cl}"></span>`;
+      d.onclick=()=>{
+        let idx=pickedOutfit.findIndex(p=>p.n===it.n);
+        if(idx>=0)pickedOutfit.splice(idx,1);else pickedOutfit.push(it);
+        buildWardrobe();
+        let pk=document.getElementById('wardrobePick');
+        if(pickedOutfit.length===0)pk.innerHTML='👆 点击衣服试穿搭配吧~';
+        else if(pickedOutfit.length<=2)pk.innerHTML='💖 已选: '+pickedOutfit.map(p=>p.e+p.n).join(' + ')+'<br>再挑挑~';
+        else if(pickedOutfit.length<=4)pk.innerHTML='✨ 搭配中: '+pickedOutfit.map(p=>p.e+p.n).join(' + ')+'<br>好有品味！';
+        else pk.innerHTML='👑 董婷的今日OOTD:<br>'+pickedOutfit.map(p=>p.e+p.n).join(' + ')+'<br>💯 满分搭配！出门炸街！';
+        if(pickedOutfit.length>0)for(let i=0;i<8;i++)hr.push(mkHeart(450,300+Math.random()*100));
+      };
+      row.appendChild(d);
+    });c.appendChild(row);
+  });
+}
+
+// ============ 猫咪聊天 ============
+const catReplies = [
+  {e:'😊',r:'喵~ 开心就好！<br>本喵也替你开心 🐱<br>蹭蹭你的手~'},
+  {e:'🥰',r:'喵呜~ 幸福的味道！<br>本喵闻到了 💕<br>多笑笑，你笑起来最好看'},
+  {e:'😴',r:'喵… 累了吗？<br>来来来，靠着本喵睡一觉 🛌<br>呼噜呼噜~ 这是催眠的声音'},
+  {e:'😢',r:'喵… 不哭不哭<br>本喵用尾巴帮你擦眼泪 🐾<br>冰箱里有小鱼干，分你一半'},
+  {e:'😤',r:'喵嗷！谁惹你了！<br>本喵去挠他！😾<br>开个玩笑~ 深呼吸，放松~'},
+  {e:'🤗',r:'喵~ 蹭蹭蹭 💕<br>本喵最喜欢董婷了<br>你是全世界最好的铲屎官'},
+  {e:'💪',r:'喵！加油加油！<br>本喵相信你一定能行 🐱<br>你是最棒的董婷！'},
+  {e:'🌈',r:'喵~~ 看见了彩虹喵<br>一切都会好起来的 🌈<br>本喵保证！拉钩~'},
+];
+function openCatChat(){
+  document.getElementById('catOverlay').classList.add('show');
+  document.getElementById('catReply').innerHTML='🐱 选一个嘛，喵想知道~';
+  let row=document.getElementById('catEmojiRow');row.innerHTML='';
+  catReplies.forEach(m=>{
+    let b=document.createElement('button');b.className='cat-emoji-btn';b.textContent=m.e;
+    b.onclick=()=>{
+      document.getElementById('catReply').innerHTML=m.r;
+      for(let i=0;i<20;i++)hr.push(mkHeart(370,FL-30+Math.random()*40));
+    };
+    row.appendChild(b);
+  });
+}
+function closeCatChat(){
+  document.getElementById('catOverlay').classList.remove('show');
 }
 
 // ============ 面板系统 ============
@@ -904,7 +1103,7 @@ function buildPanel(){
         d.onclick=()=>{R[o.k]=cl;buildPanel();};rw.appendChild(d);
       });a.appendChild(rw);
     }else if(o.t==='color_groups'){
-      // 36色分5大类
+  // 36色分5大类
       WALL_COLOR_GROUPS.forEach(g=>{
         let catLb=document.createElement('div');catLb.className='color-cat';catLb.textContent=g.name;a.appendChild(catLb);
         let rw=document.createElement('div');rw.className='color-row';
