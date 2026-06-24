@@ -65,29 +65,14 @@ canvas{border-radius:10px;display:block;cursor:pointer;}
 }
 .wardrobe-panel h2{color:#f8bbd0;font-size:15px;letter-spacing:3px;margin-bottom:10px;}
 .wardrobe-panel h2 span{font-size:22px;}
-.wardrobe-main{display:flex;gap:14px;align-items:flex-start;}
-.wardrobe-mirror{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;}
-.mirror-frame{
-  position:relative;border:6px solid #d4a574;border-radius:16px;
-  box-shadow:inset 0 0 30px rgba(255,200,220,.15),0 0 30px rgba(233,30,99,.2);
-  background:linear-gradient(180deg,#fef5f8,#fce4ec);
-  overflow:hidden;line-height:0;
-}
-.mirror-frame canvas{display:block;}
-.mirror-sparkle{
-  position:absolute;top:8px;right:12px;font-size:20px;
-  animation:sparklePulse 1.5s ease-in-out infinite;pointer-events:none;
-}
-@keyframes sparklePulse{0%,100%{opacity:.3;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
-.mirror-label{font-size:10px;color:#c090a0;letter-spacing:2px;}
-.ootd-display{font-size:11px;color:#f8bbd0;letter-spacing:1px;line-height:1.6;min-height:18px;max-width:180px;text-align:center;}
+.ootd-display{font-size:11px;color:#f8bbd0;letter-spacing:1px;line-height:1.6;min-height:18px;text-align:center;margin-bottom:6px;}
 .btn-ootd{
   padding:6px 16px;font-size:10px;font-family:inherit;letter-spacing:2px;
   color:#fff;background:linear-gradient(135deg,#e91e63,#9c27b0);
   border:none;border-radius:12px;cursor:pointer;transition:all .2s;
 }
 .btn-ootd:hover{box-shadow:0 3px 14px rgba(233,30,99,.4);transform:scale(1.05);}
-.wardrobe-items-scroll{flex:1;max-height:62vh;overflow-y:auto;padding-right:4px;}
+.wardrobe-items-scroll{max-height:55vh;overflow-y:auto;padding-right:4px;}
 .wardrobe-items-scroll::-webkit-scrollbar{width:3px;}
 .wardrobe-items-scroll::-webkit-scrollbar-thumb{background:rgba(233,30,99,.2);border-radius:2px;}
 .wardrobe-cat{font-size:10px;color:#c090a0;letter-spacing:2px;margin:8px 0 4px;border-top:1px solid rgba(233,30,99,.15);padding-top:6px;}
@@ -135,21 +120,10 @@ canvas{border-radius:10px;display:block;cursor:pointer;}
 
 <div class="wardrobe-overlay" id="wardrobeOverlay">
   <div class="wardrobe-panel">
-    <h2><span>👑</span> 董婷的梦幻衣橱 <span>👑</span></h2>
-    <div class="wardrobe-main">
-      <!-- 左侧：换装镜 -->
-      <div class="wardrobe-mirror">
-        <div class="mirror-frame">
-          <canvas id="mirrorCanvas" width="180" height="280"></canvas>
-          <div class="mirror-sparkle" id="mirrorSparkle">✨</div>
-        </div>
-        <div class="mirror-label">🪞 试衣镜</div>
-        <div class="ootd-display" id="ootdDisplay">👆 选衣服试穿吧~</div>
-        <button class="btn-ootd" onclick="randomOutfit()">🎲 一键搭配</button>
-      </div>
-      <!-- 右侧：衣物选择 -->
-      <div class="wardrobe-items-scroll" id="wardrobeContent"></div>
-    </div>
+    <h2><span>👗</span> 董婷的梦幻衣橱 <span>👗</span></h2>
+    <div class="ootd-display" id="ootdDisplay">👆 点击衣服搭配吧~</div>
+    <div class="wardrobe-items-scroll" id="wardrobeContent"></div>
+    <button class="btn-ootd" onclick="randomOutfit()">🎲 一键搭配</button>
     <span class="wardrobe-close" onclick="closeWardrobe()">✨ 关上衣橱 ✨</span>
   </div>
 </div>
@@ -1034,7 +1008,6 @@ function randomOutfit(){
   if(Math.random()>.4){let acc=cats[4][Math.floor(Math.random()*cats[4].length)];pickedOutfit.push(acc);}
   buildWardrobe();updateOOTD();
   // 镜子闪亮
-  let sp=document.getElementById('mirrorSparkle');sp.style.fontSize='36px';setTimeout(()=>sp.style.fontSize='20px',300);
 }
 function buildWardrobe(){
   let c=document.getElementById('wardrobeContent');c.innerHTML='';
